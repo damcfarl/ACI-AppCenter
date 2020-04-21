@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="cui">
+
+<head>
+  <meta charset="utf-8">
+
+  <!-- Scripts -->
+  <!-- Token  -->
+  <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+
+  <!--
+    The tokens of your app are stored in:
+        window.APIC_DEV_COOKIE and window.APIC_URL_TOKEN
+
+    They can also be retrieved using:
+        window.APIC_DEV_COOKIE = Ext.util.Cookies.get("app_<VENDOR DOMAIN>_<APPID>_token");
+        window.APIC_URL_TOKEN  = Ext.util.Cookies.get("app_<VENDOR DOMAIN>_<APPID>_urlToken");
+    where <VENDOR DOMAIN> and <APPID> are the fields 'vendordomain' and 'appid' in app.json.
+  -->
+  <script type="text/javascript">
+
+    //set this to 1 if working on your local PC.  This setting will enable manual login
+    //window.location['host'].indexOf('localhost') returns FALSE if running on APIC, TRUE if running local computer
+    var DEVMODE=1;
+    var loginName="damcfarl";
+    var loginPassword="cisco!123";
+
+
+    //development, opened .html file from local filesystem, setting APIC ip manually
+    if (DEVMODE) {
+      window.ADDRESS = '10.122.143.36';
+      //location.protocol = 'https'
+
+      window.ENTRY_POINT = 'https://' + window.ADDRESS;
+    //  window.BACKEND_QUERY_URL = location.protocol + "//" + window.location["host"] + "/appcenter/Cisco/FirstStatefulApp";
+      window.LOCAL = 1;
+
+
+    }
+
+  if (!DEVMODE) {
+
+      window.ADDRESS = window.location['host'];       //sets the apic IP from parent window
+
+      window.ENTRY_POINT = 'https://' + window.ADDRESS;
+      window.LOCAL = 0;
+
+    window.APIC_DEV_COOKIE = Ext.util.Cookies.get("app_DaveCo_MyApp_token");
+    window.APIC_URL_TOKEN =  Ext.util.Cookies.get("app_DaveCo_MyApp_urlToken");
+
+    
+
+    window.addEventListener('message', function (e) {
+        if (e.source === window.parent) {
+            var tokenObj = Ext.decode(e.data, true);
+            if (tokenObj) {
+                window.APIC_DEV_COOKIE = tokenObj.token;
+                window.APIC_URL_TOKEN = tokenObj.urlToken;
+                Ext.util.Cookies.set("app_DaveCo_MyApp_token", tokenObj.token);
+                Ext.util.Cookies.set("app_DaveCo_MyApp_urlToken", tokenObj.urlToken);
+            }
+        }
+    });
+  }
+
+    function getUrlVars() {
+      var vars = {};
+      var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+          function(m,key,value) {
+              vars[key] = value;
+          });
+      return vars;
+    }
+
+
+  </script>
+  <link rel="stylesheet" href="css/cui-standard.min.css">
+
+  <!-- Include your scripts here -->
+  <script type="text/javascript" src="scripts/jquery-3.1.1.min.js"></script>
+
+  <script type="text/javascript">
+
+
+  // This function login to the APIC manually - DEVMODE will call this function to login
+  // create the devcookie and APIC-challenge tokens
+  function openSession(callback) {
+      console.log('Opening session to ' + window.ADDRESS);
+      $.ajax({
+          type: 'POST',
+          url: window.ENTRY_POINT + '/api/aaaLogin.json?gui-token-request=yes',
+          dataType: 'json',
+          success: function (results) {
+        console.log(results.imdata[0]);
+        console.log(' successfully login to APIC');
+              callback(results.imdata[0].aaaLogin.attributes);
+              //window.TOKEN = results.imdata[0].aaaLogin.attributes.token;
+              //window.URL_TOKEN = results.imdata[0].aaaLogin.attributes.urlToken;
+
+
+          },
+          error: function (responseData, textStatus, errorThrown) {
+              console.error(responseData);
+          },
+          data: JSON.stringify({
+              'aaaUser': {
+                  'attributes': {
+                      'name': loginName,
+                      'pwd': loginPassword
+                  }
+              }
+          })
+      });
+  }
+
+  function loginAPIC(){
+  
+  if (window.LOCAL) {
+      openSession(function (aaaLoginAttributes) {
+          console.log('Session is ready');
+          window.TOKEN = aaaLoginAttributes.token;
+          window.URL_TOKEN = aaaLoginAttributes.urlToken;
+
+          // should refactor and remove this line.  some queries use window.APIC_URL_TOKEN cookie
+          window.APIC_URL_TOKEN = aaaLoginAttributes.urlToken;
+          window.APIC_DEV_COOKIE =  aaaLoginAttributes.token;
+
+          $("#login-text").html ("session ready");
+        
+     });
+
+  }
+}
+
+    // Testing communication with the APIC
+    function testAPICAPI(address) {
+      var query_url = 'https://' + address + '/api/class/fvTenant.json'
+      $.ajax({
+        url: query_url,
+        type: 'GET',
+        headers: {'DevCookie': window.APIC_DEV_COOKIE, 'APIC-challenge': window.APIC_URL_TOKEN},
+        success: function(data){
+          console.log(data);
+          $("#rest-running-ok").css('display', '');
+          $("#rest-running-nok").css('display', 'None');
+
+          console.log(data.imdata)
+        },
+        error: function(error){
+          console.log("===ERROR");
+          console.log(error);
+          $("#rest-running-ok").css('display', 'None');
+          $("#rest-running-nok").css('display', '');
+        },
+      });
+    }
+
+    testAPICAPI(window.location["host"]);
+  </script>
+
+  
+
+  
+
+</head>
+
+
+<body>
+  <!-- Your app here -->
+<header class="header">
+  <div class="header-bar container">
+      <a class="header-bar__logo">
+          <span class="icon-cisco"></span>
+      </a>
+      <div class="header-bar__main">
+          <div class="header-heading">
+              <h1 class="page-title">MyApp</h1>
+          </div>
+      </div>
+  </div>
+</header>
+
+  <div class="hero hero--blue hero--regular">
+      <div class="container">
+          <div class="hero__content">
+
+              <h1><b>Congratulations!</b> Your brand new app is working!</h1>
+              <div class="row">
+                <p class="col-md-6">Now, have fun and modify this app to create your own Cisco ACI application!</p>
+              </div>
+          </div>
+      </div>
+  </div>
+
+                <div id="login-form">
+                  <p> Configure the credential on html file before logging in </p>
+                  <button onclick="loginAPIC()">Login to APIC</button>
+                  <p id=login-text> waiting </p> 
+              </div>
+
+              <div id="login-form">
+                  <p> Configure the credential on html file before logging in </p>
+                  <button onclick="testAPICAPI(window.ADDRESS)">Check APIC</button>
+                  <p id=login-text> waiting </p> 
+              </div>
+
+
+  <div class="content__main">
+    <div class="container">
+      <div class="row">
+
+        <div id="rest-running-ok" class="col-md-3" style="display:None">
+          <div class="toast">
+            <div class="toast__icon text-success icon-check"></div>
+              <div class="toast__body">
+                  <div class="toast__title">Front-end <-> APIC</div>
+                  <div class="toast__message">APIC is responding.</div>
+              </div>
+          </div>
+        </div>
+
+        <div id="rest-running-nok" class="col-md-3" style="display:None">
+          <div class="toast">
+            <div class="toast__icon text-danger icon-error"></div>
+              <div class="toast__body">
+                  <div class="toast__title">Front-end <-> APIC</div>
+                  <div class="toast__message">APIC is not responding.</div>
+              </div>
+          </div>
+        </div>
+
+        
+
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
