@@ -1,0 +1,127 @@
+{
+	"info": {
+		"_postman_id": "13c088e3-5489-40fb-be67-5dddd936adf7",
+		"name": "ACC-AppCenter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "APIC_Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"aaaUser\":{\n    \"attributes\":{\n      \"name\":\"damcfarl\",\n      \"pwd\":\"cisco!123\"\n                 }\n            }\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "https://10.122.143.36/api/aaaLogin.json",
+					"protocol": "https",
+					"host": [
+						"10",
+						"122",
+						"143",
+						"36"
+					],
+					"path": [
+						"api",
+						"aaaLogin.json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tenants_exceptCommon",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://10.122.143.36/api/node/class/fvTenant.json?query-target-filter=and(ne(fvTenant.name,%22common%22))&order-by=fvTenant.modTs|desc",
+					"protocol": "https",
+					"host": [
+						"10",
+						"122",
+						"143",
+						"36"
+					],
+					"path": [
+						"api",
+						"node",
+						"class",
+						"fvTenant.json"
+					],
+					"query": [
+						{
+							"key": "query-target-filter",
+							"value": "and(ne(fvTenant.name,%22common%22))"
+						},
+						{
+							"key": "order-by",
+							"value": "fvTenant.modTs|desc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RouteReflector",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"totalCount\": \"1\",\n    \"imdata\": [\n        {\n            \"bgpInstPol\": {\n                \"attributes\": {\n                    \"annotation\": \"\",\n                    \"descr\": \"\",\n                    \"dn\": \"uni/fabric/bgpInstP-default\",\n                    \"name\": \"default\",\n                    \"nameAlias\": \"\",\n                    \"ownerKey\": \"\",\n                    \"ownerTag\": \"\"\n                },\n                \"children\": [\n                    {\n                        \"bgpRRP\": {\n                            \"attributes\": {\n                                \"annotation\": \"\",\n                                \"descr\": \"\",\n                                \"name\": \"\",\n                                \"nameAlias\": \"\"\n                            },\n                            \"children\": [\n                                {\n                                    \"bgpRRNodePEp\": {\n                                        \"attributes\": {\n                                            \"annotation\": \"\",\n                                            \"descr\": \"\",\n                                            \"id\": \"201\",\n                                            \"nameAlias\": \"\",\n                                            \"podId\": \"1\"\n                                        }\n                                    }\n                                },\n                                {\n                                    \"bgpRRNodePEp\": {\n                                        \"attributes\": {\n                                            \"annotation\": \"\",\n                                            \"descr\": \"\",\n                                            \"id\": \"202\",\n                                            \"nameAlias\": \"\",\n                                            \"podId\": \"1\"\n                                        }\n                                    }\n                                }\n                            ]\n                        }\n                    },\n                    {\n                        \"bgpExtRRP\": {\n                            \"attributes\": {\n                                \"annotation\": \"\",\n                                \"descr\": \"\",\n                                \"name\": \"\",\n                                \"nameAlias\": \"\"\n                            }\n                        }\n                    },\n                    {\n                        \"bgpAsP\": {\n                            \"attributes\": {\n                                \"annotation\": \"\",\n                                \"asn\": \"65001\",\n                                \"descr\": \"\",\n                                \"name\": \"\",\n                                \"nameAlias\": \"\"\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://10.122.143.36/api/node/mo/uni/fabric/bgpInstP-default.json?query-target=children",
+					"protocol": "https",
+					"host": [
+						"10",
+						"122",
+						"143",
+						"36"
+					],
+					"path": [
+						"api",
+						"node",
+						"mo",
+						"uni",
+						"fabric",
+						"bgpInstP-default.json"
+					],
+					"query": [
+						{
+							"key": "query-target",
+							"value": "children"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
